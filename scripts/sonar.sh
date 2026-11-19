@@ -25,8 +25,9 @@ esperar_sonarqube() {
   log "Esperando a que SonarQube esté disponible en $URL ..."
   for _ in $(seq 1 120); do
     estado="$(curl -fsS "$URL/api/system/status" 2>/dev/null \
+
       | python3 -c 'import sys,json; print(json.load(sys.stdin).get("status",""))' 2>/dev/null || true)"
-    if [ "$estado" = "UP" ]; then
+    if [[ "$estado" = "UP" ]]; then
       log "SonarQube está operativo."
       return 0
     fi
@@ -45,7 +46,7 @@ iniciar() {
   "${COMPOSE[@]}" up -d sonarqube-db sonarqube
   esperar_sonarqube
 
-  if [ -f "$ARCHIVO_ENTORNO" ]; then
+  if [[ -f "$ARCHIVO_ENTORNO" ]]; then
     log "Token existente en $ARCHIVO_ENTORNO (no se regenera)."
     return 0
   fi
@@ -78,7 +79,7 @@ iniciar() {
 }
 
 analizar() {
-  if [ ! -f "$ARCHIVO_ENTORNO" ]; then
+  if [[ ! -f "$ARCHIVO_ENTORNO" ]]; then
     error "Falta $ARCHIVO_ENTORNO. Ejecuta primero: ./scripts/sonar.sh iniciar"
     exit 1
   fi
@@ -87,9 +88,9 @@ analizar() {
   export SONAR_TOKEN
 
   local python="backend/venv/bin/python"
-  [ -x "$python" ] || python="$(command -v python3)"
+  [[ -x "$python" ]] || python="$(command -v python3)"
   local python_abs="$RAIZ/$python"
-  [ -x "$python_abs" ] || python_abs="$(command -v python3)"
+  [[ -x "$python_abs" ]] || python_abs="$(command -v python3)"
 
   log "Ejecutando pruebas del backend y generando cobertura XML..."
   ( cd "$RAIZ/backend" && "$python_abs" -m pytest \
